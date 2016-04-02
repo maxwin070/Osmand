@@ -47,9 +47,9 @@ public class GeocodingUtilities {
 	public static final float DISTANCE_BULDING_PROXIMITY = 100;
 	
 	public static final String[] SUFFIXES = new String[] {
-		"av.", "avenue", "просп.", "пер.", "пр.","заул.", "проспект", "переул.", "бул.", "бульвар", "тракт"};
+		"av.", "avenue", "\u043f\u0440\u043e\u0441\u043f.", "пер.", "пр.", "\u0437\u0430\u0443\u043b.", "\u043f\u0440\u043e\u0441\u043f\u0435\u043a\u0442", "\u043f\u0435\u0440\u0435\u0443\u043b.", "\u0431\u0443\u043b.", "\u0431\u0443\u043b\u044c\u0432\u0430\u0440", "\u0442\u0440\u0430\u043a\u0442"};
 	public static final String[] DEFAULT_SUFFIXES = new String[] {
-		"str.", "street", "улица", "ул.", "вулица", "вул.", "вулиця"};
+		"str.", "street", "\u0443\u043b\u0438\u0446\u0430", "\u0443\u043b.", "\u0432\u0443\u043b\u0438\u0446\u0430", "\u0432\u0443\u043b.", "\u0432\u0443\u043b\u0438\u0446\u044f"};
 	private static Set<String> SET_DEF_SUFFIXES = null;
 	private static Set<String> SET_SUFFIXES = null;
 	

@@ -75,9 +75,7 @@ public class Reshaper {
 
 	}
 	public static void main(String[] args) {
-//		char[] c = new char[] {'א', 'ד','ם', ' ', '1', '2'} ;
-//		String reshape = "אדם";
-		char[] c = new char[] {'א', 'ד','ם'} ;
+		char[] c = new char[] {'\u05d0', '\u05d3', '\u05dd'} ;
 		String reshape = reshape(new String(c));
 		for(int i=0; i < reshape.length(); i++) {
 			System.out.println(reshape.charAt(i));
@@ -86,10 +84,10 @@ public class Reshaper {
 	}
 
 	private static void test2() {
-		String s = "گچ پژ نمکی باللغة العربي";
+		String s = "\u06af\u0686 \u067e\u0698 \u0646\u0645\u06a9\u06cc \u0628\u0627\u0644\u0644\u063a\u0629 \u0627\u0644\u0639\u0631\u0628\u064a";
 		String reshape = reshape(s);
 
-		if (!reshape.equals("ﻲﺑﺮﻌﻟﺍ ﺔﻐﻠﻟﺎﺑ ﯽﮑﻤﻧ ﮋﭘ ﭻﮔ")) {
+		if (!reshape.equals("\ufef2\ufe91\ufeae\ufecc\ufedf\ufe8d \ufe94\ufed0\ufee0\ufedf\ufe8e\ufe91 \ufbfd\ufb91\ufee4\ufee7 \ufb8b\ufb58 \ufb7b\ufb94")) {
 			throw new IllegalArgumentException("BUG!!!");
 		}
 	}
