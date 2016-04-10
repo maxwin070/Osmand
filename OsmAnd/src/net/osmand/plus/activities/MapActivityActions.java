@@ -2,6 +2,7 @@ package net.osmand.plus.activities;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -27,6 +28,8 @@ import net.osmand.data.LatLon;
 import net.osmand.data.PointDescription;
 import net.osmand.data.QuadRect;
 import net.osmand.data.RotatedTileBox;
+import net.osmand.geocaching.GeoCache;
+import net.osmand.geocaching.GeoCachingUtils;
 import net.osmand.map.ITileSource;
 import net.osmand.plus.ApplicationMode;
 import net.osmand.plus.ContextMenuAdapter;
@@ -609,6 +612,50 @@ public class MapActivityActions implements DialogProvider {
 						return true;
 					}
 				}).createItem());
+
+		optionsMenuHelper.addItem(new ContextMenuItem.ItemBuilder().setTitle("Pokaż skrzynki...")
+				.setIcon(R.drawable.map_pin_poi)
+				.setListener(new ContextMenuAdapter.ItemClickListener() {
+					@Override
+					public boolean onContextMenuClick(ArrayAdapter<ContextMenuItem> adapter, int itemId, int pos, boolean isChecked) {
+						MapActivity.clearPrevActivityIntent();
+						mapActivity.closeDrawer();
+
+						if (!app.getLocationProvider().checkGPSEnabled(mapActivity)) {
+							showToast("GPS jest wyłączony!");
+							return true;
+						}
+
+						final ProgressDialog progress = ProgressDialog.show(mapActivity, "Proszę czekać...",
+								"Pobieram aktualną lokalizację", true);
+
+						app.getLocationProvider().addLocationListener(new OsmAndLocationProvider.OsmAndLocationListener() {
+							@Override
+							public void updateLocation(Location location) {
+								progress.setMessage("Pobieram dane z opencaching.pl");
+								app.getMapMarkersHelper().removeActiveMarkers();
+								app.getMapMarkersHelper().removeMarkersHistory();
+								final double radius = 1; // km
+								GeoCachingUtils.GetNearestGeoCaches(location, radius, app, new GeoCachingUtils.OnCachesLoadedListener() {
+									@Override
+									public void onCachesLoaded(List<GeoCache> caches) {
+										progress.setMessage("Dodaję znaczniki do mapy");
+										for (GeoCache cache : caches) {
+											addMapMarker(cache.getLatitude(), cache.getLongtitude(),
+													new PointDescription(PointDescription.POINT_TYPE_LOCATION,
+															cache.getCode()));
+										}
+										progress.dismiss();
+										showToast("Znalazłem " + caches.size() + " skrzynki w promieniu " + radius + " km od Ciebie!");
+									}
+								});
+								app.getLocationProvider().removeLocationListener(this);
+							}
+						});
+						return true;
+					}
+				}).createItem());
+
 		if (settings.USE_MAP_MARKERS.get()) {
 			optionsMenuHelper.addItem(new ContextMenuItem.ItemBuilder().setTitleId(R.string.map_markers, mapActivity)
 					.setIcon(R.drawable.ic_action_flag_dark)
