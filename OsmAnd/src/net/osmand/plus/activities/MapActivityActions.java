@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -626,32 +627,60 @@ public class MapActivityActions implements DialogProvider {
 							return true;
 						}
 
-						final ProgressDialog progress = ProgressDialog.show(mapActivity, "Proszę czekać...",
-								"Pobieram aktualną lokalizację", true);
+						AlertDialog.Builder builder = new AlertDialog.Builder(mapActivity);
+						builder.setTitle("Podaj promień, w jakim szukać skrzynek (km):");
 
-						app.getLocationProvider().addLocationListener(new OsmAndLocationProvider.OsmAndLocationListener() {
+						final EditText input = new EditText(mapActivity);
+						input.setInputType(InputType.TYPE_CLASS_NUMBER);
+						builder.setView(input);
+
+						builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 							@Override
-							public void updateLocation(Location location) {
-								progress.setMessage("Pobieram dane z opencaching.pl");
-								app.getMapMarkersHelper().removeActiveMarkers();
-								app.getMapMarkersHelper().removeMarkersHistory();
-								final double radius = 1; // km
-								GeoCachingUtils.GetNearestGeoCaches(location, radius, app, new GeoCachingUtils.OnCachesLoadedListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								final double radius = Double.valueOf(input.getText().toString());
+								if (radius <= 0) {
+									showToast("Promień musi być większy od 0!");
+									return;
+								}
+
+								dialog.dismiss();
+
+								final ProgressDialog progress = ProgressDialog.show(mapActivity, "Proszę czekać...",
+										"Pobieram aktualną lokalizację", true);
+
+								app.getLocationProvider().addLocationListener(new OsmAndLocationProvider.OsmAndLocationListener() {
 									@Override
-									public void onCachesLoaded(List<GeoCache> caches) {
-										progress.setMessage("Dodaję znaczniki do mapy");
-										for (GeoCache cache : caches) {
-											addMapMarker(cache.getLatitude(), cache.getLongtitude(),
-													new PointDescription(PointDescription.POINT_TYPE_LOCATION,
-															cache.getCode()));
-										}
-										progress.dismiss();
-										showToast("Znalazłem " + caches.size() + " skrzynki w promieniu " + radius + " km od Ciebie!");
+									public void updateLocation(Location location) {
+										progress.setMessage("Pobieram dane z opencaching.pl");
+										app.getMapMarkersHelper().removeActiveMarkers();
+										app.getMapMarkersHelper().removeMarkersHistory();
+
+										GeoCachingUtils.GetNearestGeoCaches(location, radius, app, new GeoCachingUtils.OnCachesLoadedListener() {
+											@Override
+											public void onCachesLoaded(List<GeoCache> caches) {
+												progress.setMessage("Dodaję znaczniki do mapy");
+												for (GeoCache cache : caches) {
+													addMapMarker(cache.getLatitude(), cache.getLongtitude(),
+															new PointDescription(PointDescription.POINT_TYPE_LOCATION,
+																	cache.getCode()));
+												}
+												progress.dismiss();
+												showToast("Znalazłem " + caches.size() + " skrzynki w promieniu " + radius + " km od Ciebie!");
+											}
+										});
+										app.getLocationProvider().removeLocationListener(this);
 									}
 								});
-								app.getLocationProvider().removeLocationListener(this);
 							}
 						});
+						builder.setNegativeButton("Anuluj", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.cancel();
+							}
+						});
+
+						builder.show();
 						return true;
 					}
 				}).createItem());
