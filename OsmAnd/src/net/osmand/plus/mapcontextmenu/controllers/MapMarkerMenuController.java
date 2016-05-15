@@ -1,8 +1,12 @@
 package net.osmand.plus.mapcontextmenu.controllers;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
 import net.osmand.data.PointDescription;
+import net.osmand.geocaching.GeoCache;
+import net.osmand.geocaching.GeoCacheDetailsActivity;
+import net.osmand.geocaching.GeoCachingUtils;
 import net.osmand.plus.MapMarkersHelper;
 import net.osmand.plus.MapMarkersHelper.MapMarker;
 import net.osmand.plus.OsmandApplication;
@@ -13,11 +17,13 @@ import net.osmand.plus.mapcontextmenu.MenuBuilder;
 import net.osmand.plus.mapcontextmenu.MenuController;
 import net.osmand.util.Algorithms;
 
+import static android.support.v4.app.ActivityCompat.startActivity;
+
 public class MapMarkerMenuController extends MenuController {
 
 	private MapMarker mapMarker;
 
-	public MapMarkerMenuController(OsmandApplication app, MapActivity mapActivity, PointDescription pointDescription, MapMarker mapMarker) {
+	public MapMarkerMenuController(final OsmandApplication app, MapActivity mapActivity, PointDescription pointDescription, MapMarker mapMarker) {
 		super(new MenuBuilder(app), pointDescription, mapActivity);
 		this.mapMarker = mapMarker;
 		final MapMarkersHelper markersHelper = app.getMapMarkersHelper();
@@ -31,6 +37,21 @@ public class MapMarkerMenuController extends MenuController {
 		};
 		leftTitleButtonController.caption = getMapActivity().getString(R.string.shared_string_remove);
 		leftTitleButtonController.leftIconId = R.drawable.ic_action_delete_dark;
+
+		final String cacheCode = getMapMarker().getOnlyName();
+		if (GeoCachingUtils.IsGeoCacheLoaded(cacheCode)) {
+			rightTitleButtonController = new TitleButtonController() {
+				@Override
+				public void buttonPressed() {
+					getMapActivity().getContextMenu().close();
+					Intent myIntent = new Intent(app, GeoCacheDetailsActivity.class);
+					myIntent.putExtra("cacheCode", cacheCode);
+					startActivity(getMapActivity(), myIntent, null);
+			}
+			};
+			rightTitleButtonController.caption = String.format("Poka%c szczeg%c%cy", (char)0x017c, (char)0x00f3, (char)0x0142);
+			rightTitleButtonController.leftIconId = R.drawable.ic_action_additional_option;
+		}
 	}
 
 	@Override

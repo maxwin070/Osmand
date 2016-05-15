@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -31,6 +32,7 @@ import net.osmand.data.QuadRect;
 import net.osmand.data.RotatedTileBox;
 import net.osmand.geocaching.GeoCache;
 import net.osmand.geocaching.GeoCachingUtils;
+import net.osmand.geocaching.NewGeoCacheDialog;
 import net.osmand.map.ITileSource;
 import net.osmand.plus.ApplicationMode;
 import net.osmand.plus.ContextMenuAdapter;
@@ -288,6 +290,11 @@ public class MapActivityActions implements DialogProvider {
 		ContextMenuItem.ItemBuilder itemBuilder = new ContextMenuItem.ItemBuilder();
 		adapter.addItem(itemBuilder.setTitleId(R.string.context_menu_item_search, mapActivity)
 				.setIcon(R.drawable.ic_action_search_dark).createItem());
+
+		final String addGeoCacheItemText = "Dodaj skrzynkę";
+		adapter.addItem(new ContextMenuItem.ItemBuilder().setTitle(addGeoCacheItemText)
+				.setIcon(R.drawable.ic_action_marker_dark).createItem());
+
 		if (!mapActivity.getRoutingHelper().isFollowingMode() && !mapActivity.getRoutingHelper().isRoutePlanningMode()) {
 			adapter.addItem(itemBuilder.setTitleId(R.string.context_menu_item_directions_from, mapActivity)
 					.setIcon(R.drawable.ic_action_gdirections_dark).createItem());
@@ -323,6 +330,8 @@ public class MapActivityActions implements DialogProvider {
 					mapActivity.getContextMenu().hide();
 					enterRoutePlanningMode(new LatLon(latitude, longitude),
 							mapActivity.getContextMenu().getPointDescription());
+				} else if (item.getTitle() == addGeoCacheItemText) {
+					NewGeoCacheDialog.Open(mapActivity, latitude, longitude);
 				}
 			}
 		});
@@ -614,7 +623,7 @@ public class MapActivityActions implements DialogProvider {
 					}
 				}).createItem());
 
-		optionsMenuHelper.addItem(new ContextMenuItem.ItemBuilder().setTitle("Pokaż skrzynki...")
+		optionsMenuHelper.addItem(new ContextMenuItem.ItemBuilder().setTitle("Pobierz skrzynki")
 				.setIcon(R.drawable.map_pin_poi)
 				.setListener(new ContextMenuAdapter.ItemClickListener() {
 					@Override
@@ -628,18 +637,19 @@ public class MapActivityActions implements DialogProvider {
 						}
 
 						AlertDialog.Builder builder = new AlertDialog.Builder(mapActivity);
-						builder.setTitle("Podaj promień, w jakim szukać skrzynek (km):");
+						builder.setTitle("Podaj promień, w jakim szukać skrzynek (0-5km):");
 
 						final EditText input = new EditText(mapActivity);
-						input.setInputType(InputType.TYPE_CLASS_NUMBER);
+						input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+						input.setText("1");
 						builder.setView(input);
 
 						builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								final double radius = Double.valueOf(input.getText().toString());
-								if (radius <= 0) {
-									showToast("Promień musi być większy od 0!");
+								if (radius <= 0 || radius > 5) {
+									showToast("Podaj liczbę w przedziale 0-5");
 									return;
 								}
 
@@ -660,8 +670,8 @@ public class MapActivityActions implements DialogProvider {
 											public void onCachesLoaded(List<GeoCache> caches) {
 												progress.setMessage("Dodaję znaczniki do mapy");
 												for (GeoCache cache : caches) {
-													addMapMarker(cache.getLatitude(), cache.getLongtitude(),
-															new PointDescription(PointDescription.POINT_TYPE_LOCATION,
+													addMapMarker(cache.getLatitude(), cache.getLongitude(),
+															new PointDescription(PointDescription.POINT_TYPE_FAVORITE,
 																	cache.getCode()));
 												}
 												progress.dismiss();

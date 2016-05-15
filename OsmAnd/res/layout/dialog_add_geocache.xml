@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:rowOrderPreserved="false"
+    android:paddingLeft="10dp"
+    android:useDefaultMargins="true">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nazwa:"
+        android:id="@+id/textView9"
+        android:layout_row="0"
+        android:layout_column="0" />
+
+    <EditText
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/CacheNameEditText"
+        android:layout_row="0"
+        android:layout_column="1"
+        android:editable="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Typ:"
+        android:id="@+id/textView11"
+        android:layout_row="1"
+        android:layout_column="0" />
+
+    <AutoCompleteTextView
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/CacheTypeTextSpinner"
+        android:layout_row="1"
+        android:layout_column="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Wielkość:"
+        android:id="@+id/textView10"
+        android:layout_row="2"
+        android:layout_column="0"
+        android:paddingTop="10dp" />
+
+    <Spinner
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/CacheSizeSpinner"
+        android:layout_row="2"
+        android:layout_column="1"
+        android:spinnerMode="dropdown" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trudność ogólna (1-5):"
+        android:id="@+id/textView12"
+        android:layout_row="3"
+        android:layout_column="0" />
+
+    <EditText
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/CacheGeneralDiffEdiText"
+        android:layout_row="3"
+        android:layout_column="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trudność terenu (1-5):"
+        android:id="@+id/textView13"
+        android:layout_row="4"
+        android:layout_column="0" />
+
+    <EditText
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:id="@+id/CacheTerrainDiffEditText"
+        android:layout_row="4"
+        android:layout_column="1" />
+
+</GridLayout>
